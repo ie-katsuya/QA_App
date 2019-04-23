@@ -16,16 +16,6 @@ class FavoriteActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_favorite)
 
-        val fab = findViewById<FloatingActionButton>(R.id.fab)
-        fab.setOnClickListener { _ ->
-            // ログイン済みのユーザーを取得する
-            val user = FirebaseAuth.getInstance().currentUser
 
-            // ログインしていなければログイン画面に遷移させる
-            if (user == null) {
-                val intent = Intent(applicationContext, LoginActivity::class.java)
-                startActivity(intent)
-            }
-        }
     }
 }

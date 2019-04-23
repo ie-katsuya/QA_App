@@ -21,6 +21,8 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import android.util.Base64  //追加する
 import android.widget.ListView
+import android.util.Log
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -34,6 +36,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mAdapter: QuestionsListAdapter
 
     private var mGenreRef: DatabaseReference? = null
+
+    var menu: Menu? = null
 
     private val mEventListener = object : ChildEventListener {
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
@@ -126,10 +130,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val user = FirebaseAuth.getInstance().currentUser
 
             if (user == null) {
+                menu?.getItem(4)?.setVisible(false);
+                Log.d("test","お気に入り削除")
                 // ログインしていなければログイン画面に遷移させる
                 val intent = Intent(applicationContext, LoginActivity::class.java)
                 startActivity(intent)
             } else {
+                menu?.getItem(4)?.setVisible(true);
                 // ジャンルを渡して質問作成画面を起動する
                 val intent = Intent(applicationContext, QuestionSendActivity::class.java)
                 intent.putExtra("genre", mGenre)
@@ -158,6 +165,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
+
         return true
     }
 
@@ -189,8 +197,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mToolbar.title = "コンピューター"
             mGenre = 4
         } else if(id == R.id.nav_favorite){
-            mToolbar.title = "お気に入り"
-            mGenre = 5
+            val intent = Intent(applicationContext, FavoriteActivity::class.java)
+            startActivity(intent)
         }
 
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)

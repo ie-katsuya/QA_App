@@ -25,4 +25,21 @@
             android:layout_margin="16dp"
             android:src="@drawable/plus" android:layout_alignParentRight="true"/>
 
+    <Switch android:id="@+id/favorite_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:layout_marginRight="16dip"
+            android:checked="false"
+            android:layout_alignParentEnd="true"
+            android:layout_above="@+id/fab" android:layout_alignParentRight="true"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="お気に入り"
+            android:layout_alignParentEnd="true"
+            android:layout_above="@+id/favorite_switch" android:layout_alignParentRight="true"/>
+
 </RelativeLayout>

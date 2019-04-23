@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import android.widget.CompoundButton
 import android.widget.ListView
 
 import com.google.firebase.auth.FirebaseAuth
@@ -19,7 +20,7 @@ import kotlinx.android.synthetic.main.list_question_detail.*
 
 import java.util.HashMap
 
-class QuestionDetailActivity : AppCompatActivity() {
+class QuestionDetailActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener {
 
     private lateinit var mQuestion: Question
     private lateinit var mAdapter: QuestionDetailListAdapter
@@ -85,10 +86,11 @@ class QuestionDetailActivity : AppCompatActivity() {
 
             if (user == null) {
                 // ログインしていなければログイン画面に遷移させる
+                favorite_switch.setEnabled(false)
                 val intent = Intent(applicationContext, LoginActivity::class.java)
                 startActivity(intent)
             } else {
-                favorite_switch.isEnabled(true)
+                favorite_switch.setEnabled(true)
                 // Questionを渡して回答作成画面を起動する
                 val intent = Intent(applicationContext, AnswerSendActivity::class.java)
                 intent.putExtra("question", mQuestion)
@@ -99,5 +101,13 @@ class QuestionDetailActivity : AppCompatActivity() {
         val dataBaseReference = FirebaseDatabase.getInstance().reference
         mAnswerRef = dataBaseReference.child(ContentsPATH).child(mQuestion.genre.toString()).child(mQuestion.questionUid).child(AnswersPATH)
         mAnswerRef.addChildEventListener(mEventListener)
+
+        favorite_switch.setOnCheckedChangeListener(this)
+    }
+
+    override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
+        if(isChecked){
+
+        }
     }
 }
