@@ -152,6 +152,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener(this)
 
+
+        // ログイン済みのユーザーを取得する
+        val user = FirebaseAuth.getInstance().currentUser
+        if(user == null) {
+            //お気に入りを非表示
+            navigationView.menu.findItem(R.id.nav_favorite).setVisible(false)
+        }
+
         // Firebase
         mDatabaseReference = FirebaseDatabase.getInstance().reference
 

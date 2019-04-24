@@ -25,6 +25,10 @@ class QuestionDetailActivity : AppCompatActivity(), CompoundButton.OnCheckedChan
     private lateinit var mQuestion: Question
     private lateinit var mAdapter: QuestionDetailListAdapter
     private lateinit var mAnswerRef: DatabaseReference
+    private lateinit var mFavoriteArrayList: ArrayList<Question>
+    private lateinit var mFAdapter: FavoriteListAdapter
+    private lateinit var mListView: ListView
+
 
     private val mEventListener = object : ChildEventListener {
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
@@ -107,7 +111,12 @@ class QuestionDetailActivity : AppCompatActivity(), CompoundButton.OnCheckedChan
 
     override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
         if(isChecked){
-
+            mFavoriteArrayList.clear()
+            mFAdapter.setFavoriteArrayList(mFavoriteArrayList)
+            mListView.adapter = mFAdapter
+        }else{
+            mFAdapter.delFavoriteArrayList(mFavoriteArrayList)
+            mListView.adapter = mFAdapter
         }
     }
 }
