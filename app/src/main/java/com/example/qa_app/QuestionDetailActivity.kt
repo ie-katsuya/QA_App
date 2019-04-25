@@ -16,11 +16,17 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_question_detail.*
+import kotlinx.android.synthetic.main.activity_question_send.*
 import kotlinx.android.synthetic.main.list_question_detail.*
 
 import java.util.HashMap
+//import com.sun.tools.internal.xjc.reader.xmlschema.bindinfo.BIConversion.User
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.internal.FirebaseAppHelper.getUid
 
-class QuestionDetailActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener {
+
+
+class QuestionDetailActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var mQuestion: Question
     private lateinit var mAdapter: QuestionDetailListAdapter
@@ -28,7 +34,9 @@ class QuestionDetailActivity : AppCompatActivity(), CompoundButton.OnCheckedChan
     private lateinit var mFavoriteArrayList: ArrayList<Question>
     private lateinit var mFAdapter: FavoriteListAdapter
     private lateinit var mListView: ListView
+    private var mGenre: Int = 0
 
+    var flag = false
 
     private val mEventListener = object : ChildEventListener {
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
@@ -86,15 +94,15 @@ class QuestionDetailActivity : AppCompatActivity(), CompoundButton.OnCheckedChan
 
         fab.setOnClickListener {
             // ログイン済みのユーザーを取得する
-            val user = FirebaseAuth.getInstance().currentUser
+            var user = FirebaseAuth.getInstance().currentUser
 
             if (user == null) {
                 // ログインしていなければログイン画面に遷移させる
-                favorite_switch.setEnabled(false)
+                favorite_button.setEnabled(false)
                 val intent = Intent(applicationContext, LoginActivity::class.java)
                 startActivity(intent)
             } else {
-                favorite_switch.setEnabled(true)
+                favorite_button.setEnabled(true)
                 // Questionを渡して回答作成画面を起動する
                 val intent = Intent(applicationContext, AnswerSendActivity::class.java)
                 intent.putExtra("question", mQuestion)
@@ -102,21 +110,48 @@ class QuestionDetailActivity : AppCompatActivity(), CompoundButton.OnCheckedChan
             }
         }
 
-        val dataBaseReference = FirebaseDatabase.getInstance().reference
+        var dataBaseReference = FirebaseDatabase.getInstance().reference
         mAnswerRef = dataBaseReference.child(ContentsPATH).child(mQuestion.genre.toString()).child(mQuestion.questionUid).child(AnswersPATH)
         mAnswerRef.addChildEventListener(mEventListener)
 
-        favorite_switch.setOnCheckedChangeListener(this)
+        favorite_button.setOnClickListener(this)
     }
 
-    override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
-        if(isChecked){
-            mFavoriteArrayList.clear()
-            mFAdapter.setFavoriteArrayList(mFavoriteArrayList)
-            mListView.adapter = mFAdapter
-        }else{
-            mFAdapter.delFavoriteArrayList(mFavoriteArrayList)
-            mListView.adapter = mFAdapter
-        }
+    override fun onClick(v: View) {
+
+        // ログイン済みのユーザーを取得する
+        var user = FirebaseAuth.getInstance().currentUser
+
+        // 渡ってきたジャンルの番号を保持する
+        val extras = intent.extras
+        mGenre = extras.getInt("genre")
+
+        var dataBaseReference = FirebaseDatabase.getInstance().reference
+        var genreRef = dataBaseReference.child("Favorite")
+
+        dataBaseReference.child("favorite").addListenerForSingleValueEvent(
+            object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                    favorite_button.text = "お気に入り解除"
+
+                    val data = HashMap<String, String>()
+                    val uid = HashMap<String, String>()
+
+
+                    data["uid"] = FirebaseAuth.getInstance().currentUser!!.uid
+                    genreRef = dataBaseReference.child("Favorite").child(user.toString()).child(uid.toString())
+                    data["genre"] = mQuestion.genre.toString()
+                    genreRef.push().setValue(data)
+
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    favorite_button.text = "お気に入り"
+
+                    genreRef = dataBaseReference.child("Favorite").child(user.toString())
+                    genreRef.removeValue()
+                }
+            })
     }
 }
