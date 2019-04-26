@@ -36,6 +36,8 @@ class QuestionDetailActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var mListView: ListView
     private var mGenre: Int = 0
 
+    var dataBaseReference = FirebaseDatabase.getInstance().reference
+
     var flag = false
 
     private val mEventListener = object : ChildEventListener {
@@ -110,7 +112,6 @@ class QuestionDetailActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
 
-        var dataBaseReference = FirebaseDatabase.getInstance().reference
         mAnswerRef = dataBaseReference.child(ContentsPATH).child(mQuestion.genre.toString()).child(mQuestion.questionUid).child(AnswersPATH)
         mAnswerRef.addChildEventListener(mEventListener)
 
@@ -126,9 +127,6 @@ class QuestionDetailActivity : AppCompatActivity(), View.OnClickListener {
         val extras = intent.extras
         mGenre = extras.getInt("genre")
 
-        var dataBaseReference = FirebaseDatabase.getInstance().reference
-        var genreRef = dataBaseReference.child("Favorite")
-
         dataBaseReference.child("favorite").addListenerForSingleValueEvent(
             object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -136,21 +134,20 @@ class QuestionDetailActivity : AppCompatActivity(), View.OnClickListener {
                     favorite_button.text = "お気に入り解除"
 
                     val data = HashMap<String, String>()
-                    val uid = HashMap<String, String>()
+                    //val uid = HashMap<String, String>()
+                    //data["uid"] = FirebaseAuth.getInstance().currentUser!!.uid
 
-
-                    data["uid"] = FirebaseAuth.getInstance().currentUser!!.uid
-                    genreRef = dataBaseReference.child("Favorite").child(user.toString()).child(uid.toString())
+                    var genreRef = dataBaseReference.child("favorite").child(user!!.uid)//.child(mQuestion.questionUid)
                     data["genre"] = mQuestion.genre.toString()
                     genreRef.push().setValue(data)
+                    genreRef.push().setValue(mQuestion.questionUid)
 
                 }
 
                 override fun onCancelled(databaseError: DatabaseError) {
                     favorite_button.text = "お気に入り"
-
-                    genreRef = dataBaseReference.child("Favorite").child(user.toString())
-                    genreRef.removeValue()
+                    //var genreRef = dataBaseReference.child("favorite").child(user!!.uid).child(mQuestion.questionUid)
+                    //genreRef.removeValue()
                 }
             })
     }
