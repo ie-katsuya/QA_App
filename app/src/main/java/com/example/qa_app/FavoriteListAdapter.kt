@@ -65,9 +65,7 @@ class FavoriteListAdapter(context: Context) : BaseAdapter() {
 
     fun delFavoriteArrayList(FavoriteArrayList: ArrayList<Question>){
         for(i in 0..FavoriteArrayList.size){
-            if(mFavoriteArrayList[i].title){
 
-            }
         }
     }
 }

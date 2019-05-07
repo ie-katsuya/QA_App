@@ -118,37 +118,70 @@ class QuestionDetailActivity : AppCompatActivity(), View.OnClickListener {
         favorite_button.setOnClickListener(this)
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        // ログイン済みのユーザーを取得する
+        var user = FirebaseAuth.getInstance().currentUser
+
+        if (user == null) {
+            // ログインしていなければログイン画面に遷移させる
+            favorite_button.setEnabled(false)
+            val intent = Intent(applicationContext, LoginActivity::class.java)
+            startActivity(intent)
+        } else {
+
+            dataBaseReference.child("favorite").child(user!!.uid).child(mQuestion.questionUid).addListenerForSingleValueEvent(
+                object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        flag = true
+                        favorite_button.text = "お気に入り解除"
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {
+                    }
+                }
+            )
+
+        }
+    }
+
     override fun onClick(v: View) {
 
         // ログイン済みのユーザーを取得する
         var user = FirebaseAuth.getInstance().currentUser
 
-        // 渡ってきたジャンルの番号を保持する
+        // favorite_button.text = "お気に入り解除"
         val extras = intent.extras
         mGenre = extras.getInt("genre")
 
-        dataBaseReference.child("favorite").addListenerForSingleValueEvent(
+        dataBaseReference.child("favorite").child(user!!.uid).addListenerForSingleValueEvent(
             object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
 
-                    favorite_button.text = "お気に入り解除"
+                    if(flag == false) {
+                        flag = true
 
-                    val data = HashMap<String, String>()
-                    //val uid = HashMap<String, String>()
-                    //data["uid"] = FirebaseAuth.getInstance().currentUser!!.uid
+                        favorite_button.text = "お気に入り解除"
+                        val data = HashMap<String, String>()
 
-                    var genreRef = dataBaseReference.child("favorite").child(user!!.uid)//.child(mQuestion.questionUid)
-                    data["genre"] = mQuestion.genre.toString()
-                    genreRef.push().setValue(data)
-                    genreRef.push().setValue(mQuestion.questionUid)
+                        var genreRef =
+                            dataBaseReference.child("favorite").child(user!!.uid).child(mQuestion.questionUid)
+                        data["genre"] = mQuestion.genre.toString()
+                        genreRef.setValue(data)
+                    }else{
+                        flag = false
 
+                        favorite_button.text = "お気に入り"
+
+                        var genreRef = dataBaseReference.child("favorite").child(user!!.uid).child(mQuestion.questionUid)
+                        genreRef.removeValue()
+                    }
                 }
 
                 override fun onCancelled(databaseError: DatabaseError) {
-                    favorite_button.text = "お気に入り"
-                    //var genreRef = dataBaseReference.child("favorite").child(user!!.uid).child(mQuestion.questionUid)
-                    //genreRef.removeValue()
                 }
-            })
+            }
+        )
     }
 }

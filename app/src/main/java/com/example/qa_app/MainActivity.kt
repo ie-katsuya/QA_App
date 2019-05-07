@@ -131,7 +131,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             if (user == null) {
                 menu?.getItem(4)?.setVisible(false);
-                Log.d("test","お気に入り削除")
                 // ログインしていなければログイン画面に遷移させる
                 val intent = Intent(applicationContext, LoginActivity::class.java)
                 startActivity(intent)
@@ -168,6 +167,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mAdapter = QuestionsListAdapter(this)
         mQuestionArrayList = ArrayList<Question>()
         mAdapter.notifyDataSetChanged()
+
+        mListView.setOnItemClickListener { parent, view, position, id ->
+            // Questionのインスタンスを渡して質問詳細画面を起動する
+            val intent = Intent(applicationContext, QuestionDetailActivity::class.java)
+            intent.putExtra("question", mQuestionArrayList[position])
+            startActivity(intent)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val navigationView = findViewById<NavigationView>(R.id.nav_view)
+
+        // 1:趣味を既定の選択とする
+        if(mGenre == 0) {
+            onNavigationItemSelected(navigationView.menu.getItem(0))
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
