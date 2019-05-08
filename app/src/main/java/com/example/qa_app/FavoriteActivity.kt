@@ -51,7 +51,7 @@ class FavoriteActivity : AppCompatActivity() {
                 } else {
                     byteArrayOf()
                 }
-            
+
             val answerArrayList = ArrayList<Answer>()
             val answerMap = map["answers"] as Map<String, String>?
             if (answerMap != null) {
