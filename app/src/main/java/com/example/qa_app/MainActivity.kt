@@ -31,10 +31,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mListView: ListView
     private lateinit var mQuestionArrayList: ArrayList<Question>
     private lateinit var mAdapter: QuestionsListAdapter
-    private lateinit var mFavoriteArrayList: ArrayList<Question>
-    private lateinit var mFAdapter: FavoriteListAdapter
-    private lateinit var fListView: ListView
-
 
     private var mGenreRef: DatabaseReference? = null
     private var mFavoRef: DatabaseReference? = null
@@ -114,6 +110,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    //お気に入り一覧のListView作成
     private val fEventListener = object : ChildEventListener {
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
             val map = dataSnapshot.value as Map<String, String>
@@ -142,18 +139,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
 
-            val favorite = Favorite(title,
-                body, name, uid, dataSnapshot.key ?: "",
+            val question = Question(title, body, name, uid, dataSnapshot.key ?: "",
                 mGenre, bytes, answerArrayList)
-            mFavoriteArrayList.add(favorite)
-            mFAdapter.notifyDataSetChanged()
+            mQuestionArrayList.add(question)
+            mAdapter.notifyDataSetChanged()
         }
 
         override fun onChildChanged(dataSnapshot: DataSnapshot, s: String?) {
             val map = dataSnapshot.value as Map<String, String>
 
             // 変更があったQuestionを探す
-            for (favorite in mFavoriteArrayList) {
+            for (favorite in mQuestionArrayList) {
                 if (dataSnapshot.key.equals(favorite.questionUid)) {
                     // このアプリで変更がある可能性があるのは回答(Answer)のみ
                     favorite.answers.clear()
@@ -169,7 +165,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         }
                     }
 
-                    mFAdapter.notifyDataSetChanged()
+                    mAdapter.notifyDataSetChanged()
                 }
             }
         }
@@ -324,15 +320,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun SearchFavorite(){
         // ListViewの準備
-        fListView = findViewById(R.id.listView)
-        mFAdapter = FavoriteListAdapter(this)
-        mFavoriteArrayList = ArrayList<Question>()
-        mFAdapter.notifyDataSetChanged()
+        mListView = findViewById(R.id.listView)
+        mAdapter = QuestionsListAdapter(this)
+        mQuestionArrayList = ArrayList<Question>()
+        mAdapter.notifyDataSetChanged()
 
         // 質問のリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
-        mFavoriteArrayList.clear()
-        mFAdapter.setFavoriteArrayList(mFavoriteArrayList)
-        fListView.adapter = mFAdapter
+        mQuestionArrayList.clear()
+        mAdapter.setQuestionArrayList(mQuestionArrayList)
+        mListView.adapter = mAdapter
 
         // ログイン済みのユーザーを取得する
         val user = FirebaseAuth.getInstance().currentUser
