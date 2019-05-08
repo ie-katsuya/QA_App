@@ -51,8 +51,7 @@ class FavoriteActivity : AppCompatActivity() {
                 } else {
                     byteArrayOf()
                 }
-
-
+            
             val answerArrayList = ArrayList<Answer>()
             val answerMap = map["answers"] as Map<String, String>?
             if (answerMap != null) {
@@ -132,10 +131,13 @@ class FavoriteActivity : AppCompatActivity() {
         mAdapter.setQuestionArrayList(mQuestionArrayList)
         mListView.adapter = mAdapter
 
+        mGenreRef = mDatabaseReference.child(ContentsPATH).child(mGenre.toString())
+        mGenreRef!!.addChildEventListener(fEventListener)
+
         dataBaseReference.child("favorite").child(user!!.uid).addListenerForSingleValueEvent(
             object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    mGenreRef = dataBaseReference.child(ContentsPATH).child(mGenre.toString())
+                    mGenreRef = dataBaseReference.child("favorite").child(user!!.uid)
                     mGenreRef!!.addChildEventListener(fEventListener)
                 }
 
