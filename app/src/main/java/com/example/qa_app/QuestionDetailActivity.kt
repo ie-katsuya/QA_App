@@ -31,9 +31,6 @@ class QuestionDetailActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var mQuestion: Question
     private lateinit var mAdapter: QuestionDetailListAdapter
     private lateinit var mAnswerRef: DatabaseReference
-    private lateinit var mFavoriteArrayList: ArrayList<Question>
-    private lateinit var mFAdapter: FavoriteListAdapter
-    private lateinit var mListView: ListView
     private var mGenre: Int = 0
 
     var dataBaseReference = FirebaseDatabase.getInstance().reference
@@ -125,17 +122,16 @@ class QuestionDetailActivity : AppCompatActivity(), View.OnClickListener {
         var user = FirebaseAuth.getInstance().currentUser
 
         if (user == null) {
-            // ログインしていなければログイン画面に遷移させる
-            favorite_button.setEnabled(false)
-            val intent = Intent(applicationContext, LoginActivity::class.java)
-            startActivity(intent)
+            favorite_button.setVisibility(View.INVISIBLE)
         } else {
-
+            favorite_button.setVisibility(View.VISIBLE)
             dataBaseReference.child("favorite").child(user!!.uid).child(mQuestion.questionUid).addListenerForSingleValueEvent(
                 object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        flag = true
-                        favorite_button.text = "お気に入り解除"
+                        if(dataSnapshot.value != null) {
+                            flag = true
+                            favorite_button.text = "お気に入り解除"
+                        }
                     }
 
                     override fun onCancelled(databaseError: DatabaseError) {
@@ -147,6 +143,7 @@ class QuestionDetailActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View) {
+        favorite_button.notPressTwice()
 
         // ログイン済みのユーザーを取得する
         var user = FirebaseAuth.getInstance().currentUser
@@ -183,5 +180,15 @@ class QuestionDetailActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
         )
+    }
+
+    /**
+     * 二度押し防止施策として 1秒間タップを禁止する
+     */
+    fun View.notPressTwice() {
+        this.isEnabled = false
+        this.postDelayed({
+            this.isEnabled = true
+        }, 1000L)
     }
 }
