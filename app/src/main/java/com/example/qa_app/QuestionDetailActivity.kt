@@ -152,36 +152,26 @@ class QuestionDetailActivity : AppCompatActivity(), View.OnClickListener {
         val extras = intent.extras
         mGenre = extras.getInt("genre")
 
-        dataBaseReference.child("favorite").child(user!!.uid).addListenerForSingleValueEvent(
-            object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
 
-                    if(flag == false) {
-                        flag = true
+        if (flag == false) {
+            flag = true
 
-                        favorite_button.text = "お気に入り解除"
-                        val data = HashMap<String, String>()
+            favorite_button.text = "お気に入り解除"
+            val data = HashMap<String, String>()
 
-                        var genreRef =
-                            dataBaseReference.child("favorite").child(user!!.uid).child(mQuestion.questionUid)
-                        data["genre"] = mQuestion.genre.toString()
-                        genreRef.setValue(data)
-                    }else{
-                        flag = false
+            var genreRef =
+                dataBaseReference.child("favorite").child(user!!.uid).child(mQuestion.questionUid)
+            data["genre"] = mQuestion.genre.toString()
+            genreRef.setValue(data)
+        } else {
+            flag = false
 
-                        favorite_button.text = "お気に入り"
+            favorite_button.text = "お気に入り"
 
-                        var genreRef = dataBaseReference.child("favorite").child(user!!.uid).child(mQuestion.questionUid)
-                        genreRef.removeValue()
-                    }
-                }
-
-                override fun onCancelled(databaseError: DatabaseError) {
-                }
-            }
-        )
+            var genreRef = dataBaseReference.child("favorite").child(user!!.uid).child(mQuestion.questionUid)
+            genreRef.removeValue()
+        }
     }
-
     /**
      * 二度押し防止施策として 1秒間タップを禁止する
      */
